@@ -10,11 +10,11 @@ import (
 )
 
 type Client interface {
-	CreateRepository(repo scm.Repository) error
-	GetRepository(name string) (scm.Repository, error)
-	UpdateRepository(name string, repo scm.Repository) error
-	DeleteRepository(name string) error
-	ImportRepository(repo scm.Repository) error
+	CreateRepository(ctx context.Context, repo scm.Repository) error
+	GetRepository(ctx context.Context, name string) (scm.Repository, error)
+	UpdateRepository(ctx context.Context, name string, repo scm.Repository) error
+	DeleteRepository(ctx context.Context, name string) error
+	ImportRepository(ctx context.Context, repo scm.Repository) error
 }
 
 func Provider() *schema.Provider {

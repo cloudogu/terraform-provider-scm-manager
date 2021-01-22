@@ -47,6 +47,11 @@ func resourceRepository() *schema.Resource {
 				Optional: true,
 				ForceNew: true,
 			},
+			"last_modified": {
+				Type:     schema.TypeString,
+				Optional: true,
+				Computed: true,
+			},
 		},
 	}
 }
@@ -59,12 +64,12 @@ func resourceRepositoryCreate(ctx context.Context, d *schema.ResourceData, i int
 	repo := repositoryFromState(d)
 
 	if repo.ImportUrl != "" {
-		err := client.ImportRepository(repo)
+		err := client.ImportRepository(ctx, repo)
 		if err != nil {
 			return diag.FromErr(err)
 		}
 	} else {
-		err := client.CreateRepository(repo)
+		err := client.CreateRepository(ctx, repo)
 		if err != nil {
 			return diag.FromErr(err)
 		}
@@ -83,7 +88,7 @@ func resourceRepositoryRead(ctx context.Context, d *schema.ResourceData, i inter
 
 	repoID := d.Id()
 
-	repo, err := client.GetRepository(repoID)
+	repo, err := client.GetRepository(ctx, repoID)
 	if err != nil {
 		return diag.FromErr(err)
 	}
@@ -101,7 +106,7 @@ func resourceRepositoryUpdate(ctx context.Context, d *schema.ResourceData, i int
 	repoID := d.Id()
 	repo := repositoryFromState(d)
 
-	err := client.UpdateRepository(repoID, repo)
+	err := client.UpdateRepository(ctx, repoID, repo)
 	if err != nil {
 		return diag.FromErr(err)
 	}
@@ -119,7 +124,7 @@ func resourceRepositoryDelete(ctx context.Context, d *schema.ResourceData, i int
 
 	repoID := d.Id()
 
-	err := client.DeleteRepository(repoID)
+	err := client.DeleteRepository(ctx, repoID)
 	if err != nil {
 		return diag.FromErr(err)
 	}
@@ -132,6 +137,7 @@ func repositorySetToState(repo scm.Repository, d *schema.ResourceData) {
 	d.Set("name", repo.Name)
 	d.Set("type", repo.Type)
 	d.Set("description", repo.Description)
+	d.Set("last_modified", repo.LastModified)
 }
 
 func repositoryFromState(d *schema.ResourceData) scm.Repository {
@@ -142,6 +148,7 @@ func repositoryFromState(d *schema.ResourceData) scm.Repository {
 	repo.Type = d.Get("type").(string)
 	repo.Description = d.Get("description").(string)
 	repo.ImportUrl = d.Get("import_url").(string)
+	repo.LastModified = d.Get("last_modified").(string)
 
 	return repo
 }

@@ -2,6 +2,7 @@ package scm
 
 import (
 	"bytes"
+	"context"
 	"encoding/json"
 	"fmt"
 	"net/http"
@@ -16,13 +17,14 @@ type Repository struct {
 	Description  string `json:"description"`
 	CreationDate string `json:"creationDate"`
 	ImportUrl    string `json:"importUrl"`
+	LastModified string `json:"lastModified"`
 }
 
 func (r *Repository) GetID() string {
 	return fmt.Sprintf("%s/%s", r.NameSpace, r.Name)
 }
 
-func (c *Client) CreateRepository(repo Repository) error {
+func (c *Client) CreateRepository(ctx context.Context, repo Repository) error {
 
 	b, err := json.Marshal(&repo)
 	if err != nil {
@@ -30,7 +32,7 @@ func (c *Client) CreateRepository(repo Repository) error {
 	}
 
 	buffer := bytes.NewBuffer(b)
-	req, err := http.NewRequest("POST", c.config.URL+"/api/v2/repositories", buffer)
+	req, err := http.NewRequestWithContext(ctx, "POST", c.config.URL+"/api/v2/repositories", buffer)
 	if err != nil {
 		return errors.Wrap(err, "failed to create new request")
 	}
@@ -45,8 +47,8 @@ func (c *Client) CreateRepository(repo Repository) error {
 	return nil
 }
 
-func (c *Client) GetRepository(name string) (Repository, error) {
-	req, err := http.NewRequest("GET", c.config.URL+"/api/v2/repositories/"+name, nil)
+func (c *Client) GetRepository(ctx context.Context, name string) (Repository, error) {
+	req, err := http.NewRequestWithContext(ctx, "GET", c.config.URL+"/api/v2/repositories/"+name, nil)
 	if err != nil {
 		return Repository{}, errors.Wrap(err, "failed to create new request")
 	}
@@ -65,14 +67,14 @@ func (c *Client) GetRepository(name string) (Repository, error) {
 	return *repo, nil
 }
 
-func (c *Client) UpdateRepository(name string, repo Repository) error {
+func (c *Client) UpdateRepository(ctx context.Context, name string, repo Repository) error {
 	b, err := json.Marshal(&repo)
 	if err != nil {
 		return errors.Wrap(err, "failed to marshal repository")
 	}
 
 	buffer := bytes.NewBuffer(b)
-	req, err := http.NewRequest("PUT", c.config.URL+"/api/v2/repositories"+"/"+name, buffer)
+	req, err := http.NewRequestWithContext(ctx, "PUT", c.config.URL+"/api/v2/repositories"+"/"+name, buffer)
 	if err != nil {
 		return errors.Wrap(err, "failed to create new request")
 	}
@@ -87,8 +89,8 @@ func (c *Client) UpdateRepository(name string, repo Repository) error {
 	return nil
 }
 
-func (c *Client) DeleteRepository(name string) error {
-	req, err := http.NewRequest("DELETE", c.config.URL+"/api/v2/repositories/"+name, nil)
+func (c *Client) DeleteRepository(ctx context.Context, name string) error {
+	req, err := http.NewRequestWithContext(ctx, "DELETE", c.config.URL+"/api/v2/repositories/"+name, nil)
 	if err != nil {
 		return errors.Wrap(err, "failed to create new request")
 	}
@@ -101,7 +103,7 @@ func (c *Client) DeleteRepository(name string) error {
 	return nil
 }
 
-func (c *Client) ImportRepository(repo Repository) error {
+func (c *Client) ImportRepository(ctx context.Context, repo Repository) error {
 	b, err := json.Marshal(&repo)
 	if err != nil {
 		return errors.Wrap(err, "failed to marshal repository")
@@ -109,7 +111,7 @@ func (c *Client) ImportRepository(repo Repository) error {
 
 	buffer := bytes.NewBuffer(b)
 
-	req, err := http.NewRequest("POST", fmt.Sprintf("%s/api/v2/repositories/import/%s/url", c.config.URL, repo.Type), buffer)
+	req, err := http.NewRequestWithContext(ctx, "POST", fmt.Sprintf("%s/api/v2/repositories/import/%s/url", c.config.URL, repo.Type), buffer)
 	if err != nil {
 		return errors.Wrap(err, "failed to create new request")
 	}

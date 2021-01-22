@@ -1,6 +1,7 @@
 package scm
 
 import (
+	"context"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
@@ -15,7 +16,7 @@ var testConfig = Config{
 }
 
 var testRepo = Repository{
-	NameSpace:   "testspace",
+	NameSpace:   "scmadmin",
 	Name:        "testrepo",
 	Type:        "git",
 	Description: "desc",
@@ -25,7 +26,7 @@ var testRepo = Repository{
 func TestClient_CreateRepository(t *testing.T) {
 	c := NewClient(testConfig)
 
-	err := c.CreateRepository(testRepo)
+	err := c.CreateRepository(context.Background(), testRepo)
 
 	require.NoError(t, err)
 }
@@ -33,7 +34,7 @@ func TestClient_CreateRepository(t *testing.T) {
 func TestClient_GetRepository(t *testing.T) {
 	c := NewClient(testConfig)
 
-	r, err := c.GetRepository(testRepo.GetID())
+	r, err := c.GetRepository(context.Background(), testRepo.GetID())
 	require.NoError(t, err)
 
 	assert.Equal(t, testRepo.NameSpace, r.NameSpace)
@@ -44,33 +45,33 @@ func TestClient_GetRepository(t *testing.T) {
 
 func TestClient_UpdateRepository(t *testing.T) {
 	c := NewClient(testConfig)
-	oldRepo, err := c.GetRepository(testRepo.GetID())
+	oldRepo, err := c.GetRepository(context.Background(), testRepo.GetID())
 	require.NoError(t, err)
 	updatedRepo := oldRepo
 	updatedRepo.Description = "updated desc"
 
-	err = c.UpdateRepository(testRepo.GetID(), updatedRepo)
+	err = c.UpdateRepository(context.Background(), testRepo.GetID(), updatedRepo)
 	require.NoError(t, err)
 
-	newRepo, err := c.GetRepository(testRepo.GetID())
+	newRepo, err := c.GetRepository(context.Background(), testRepo.GetID())
 	require.NoError(t, err)
-	require.Equal(t, updatedRepo, newRepo)
+	require.Equal(t, updatedRepo.Description, newRepo.Description)
 }
 
 func TestClient_DeleteRepository(t *testing.T) {
 	c := NewClient(testConfig)
 
-	err := c.DeleteRepository(testRepo.GetID())
+	err := c.DeleteRepository(context.Background(), testRepo.GetID())
 	require.NoError(t, err)
 
-	_, err = c.GetRepository(testRepo.GetID())
+	_, err = c.GetRepository(context.Background(), testRepo.GetID())
 	require.Error(t, err)
 }
 
 func TestClient_ImportRepository(t *testing.T) {
 	c := NewClient(testConfig)
 
-	err := c.ImportRepository(testRepo)
+	err := c.ImportRepository(context.Background(), testRepo)
 
 	require.NoError(t, err)
 }
