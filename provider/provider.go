@@ -1,35 +1,36 @@
-package scm
+package provider
 
 import (
 	"context"
 
-	scm_client "github.com/cloudogu/terraform-provider-scm/scm-client"
+	"github.com/cloudogu/terraform-provider-scm/scm"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
 
 type Client interface {
-	CreateRepository(repo scm_client.Repository) error
-	GetRepository(name string) (scm_client.Repository, error)
-	UpdateRepository(name string, repo scm_client.Repository) error
+	CreateRepository(repo scm.Repository) error
+	GetRepository(name string) (scm.Repository, error)
+	UpdateRepository(name string, repo scm.Repository) error
 	DeleteRepository(name string) error
+	ImportRepository(repo scm.Repository) error
 }
 
 func Provider() *schema.Provider {
 	return &schema.Provider{
 		Schema: map[string]*schema.Schema{
-			"host": &schema.Schema{
+			"host": {
 				Type:        schema.TypeString,
 				Optional:    true,
 				DefaultFunc: schema.EnvDefaultFunc("SCM_HOST", "http://localhost:8080/scm"),
 			},
-			"username": &schema.Schema{
+			"username": {
 				Type:        schema.TypeString,
 				Optional:    true,
 				DefaultFunc: schema.EnvDefaultFunc("SCM_USERNAME", "scmadmin"),
 			},
-			"password": &schema.Schema{
+			"password": {
 				Type:        schema.TypeString,
 				Optional:    true,
 				Sensitive:   true,
@@ -51,11 +52,10 @@ func providerConfigure(ctx context.Context, d *schema.ResourceData) (interface{}
 
 	hVal, ok := d.GetOk("host")
 	if ok {
-		tempHost := hVal.(string)
-		host = tempHost
+		host = hVal.(string)
 	}
 
-	client := scm_client.NewClient(scm_client.Config{
+	client := scm.NewClient(scm.Config{
 		URL:      host,
 		Username: username,
 		Password: password,

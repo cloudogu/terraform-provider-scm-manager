@@ -1,4 +1,4 @@
-package scm_client
+package scm
 
 import (
 	"fmt"

@@ -1,4 +1,4 @@
-package scm_client
+package scm
 
 import (
 	"testing"
@@ -19,6 +19,7 @@ var testRepo = Repository{
 	Name:        "testrepo",
 	Type:        "git",
 	Description: "desc",
+	ImportUrl:   "https://github.com/cloudogu/spring-petclinic",
 }
 
 func TestClient_CreateRepository(t *testing.T) {
@@ -64,4 +65,12 @@ func TestClient_DeleteRepository(t *testing.T) {
 
 	_, err = c.GetRepository(testRepo.GetID())
 	require.Error(t, err)
+}
+
+func TestClient_ImportRepository(t *testing.T) {
+	c := NewClient(testConfig)
+
+	err := c.ImportRepository(testRepo)
+
+	require.NoError(t, err)
 }

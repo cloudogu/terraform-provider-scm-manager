@@ -1,9 +1,11 @@
-package scm
+package provider
 
 import (
 	"context"
 
-	scm_client "github.com/cloudogu/terraform-provider-scm/scm-client"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
+
+	"github.com/cloudogu/terraform-provider-scm/scm"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
@@ -18,14 +20,18 @@ func resourceRepository() *schema.Resource {
 			"namespace": {
 				Type:     schema.TypeString,
 				Required: true,
+				ForceNew: true,
 			},
 			"name": {
 				Type:     schema.TypeString,
 				Required: true,
+				ForceNew: true,
 			},
 			"type": {
-				Type:     schema.TypeString,
-				Required: true,
+				Type:         schema.TypeString,
+				Required:     true,
+				ForceNew:     true,
+				ValidateFunc: validation.StringInSlice([]string{"git", "svn"}, false),
 			},
 			"creation_date": {
 				Type:     schema.TypeString,
@@ -35,6 +41,11 @@ func resourceRepository() *schema.Resource {
 			"description": {
 				Type:     schema.TypeString,
 				Optional: true,
+			},
+			"import_url": {
+				Type:     schema.TypeString,
+				Optional: true,
+				ForceNew: true,
 			},
 		},
 	}
@@ -47,9 +58,16 @@ func resourceRepositoryCreate(ctx context.Context, d *schema.ResourceData, i int
 
 	repo := repositoryFromState(d)
 
-	err := client.CreateRepository(repo)
-	if err != nil {
-		return diag.FromErr(err)
+	if repo.ImportUrl != "" {
+		err := client.ImportRepository(repo)
+		if err != nil {
+			return diag.FromErr(err)
+		}
+	} else {
+		err := client.CreateRepository(repo)
+		if err != nil {
+			return diag.FromErr(err)
+		}
 	}
 
 	d.SetId(repo.GetID())
@@ -109,20 +127,21 @@ func resourceRepositoryDelete(ctx context.Context, d *schema.ResourceData, i int
 	return diags
 }
 
-func repositorySetToState(repo scm_client.Repository, d *schema.ResourceData) {
+func repositorySetToState(repo scm.Repository, d *schema.ResourceData) {
 	d.Set("namespace", repo.NameSpace)
 	d.Set("name", repo.Name)
 	d.Set("type", repo.Type)
 	d.Set("description", repo.Description)
 }
 
-func repositoryFromState(d *schema.ResourceData) scm_client.Repository {
-	repo := scm_client.Repository{}
+func repositoryFromState(d *schema.ResourceData) scm.Repository {
+	repo := scm.Repository{}
 
 	repo.NameSpace = d.Get("namespace").(string)
 	repo.Name = d.Get("name").(string)
 	repo.Type = d.Get("type").(string)
 	repo.Description = d.Get("description").(string)
+	repo.ImportUrl = d.Get("import_url").(string)
 
 	return repo
 }
