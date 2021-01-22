@@ -16,6 +16,9 @@ func resourceRepository() *schema.Resource {
 		ReadContext:   resourceRepositoryRead,
 		UpdateContext: resourceRepositoryUpdate,
 		DeleteContext: resourceRepositoryDelete,
+		Importer: &schema.ResourceImporter{
+			StateContext: schema.ImportStatePassthroughContext,
+		},
 		Schema: map[string]*schema.Schema{
 			"namespace": {
 				Type:     schema.TypeString,
