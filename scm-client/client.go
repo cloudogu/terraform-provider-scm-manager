@@ -36,7 +36,7 @@ func (c *Client) doRequest(req *http.Request) ([]byte, error) {
 	}
 
 	if resp.StatusCode < 200 || resp.StatusCode >= 300 {
-		return nil, fmt.Errorf("response had statuscode: %d", resp.StatusCode)
+		return nil, fmt.Errorf("response had statuscode: %d and body: %s", resp.StatusCode, body)
 	}
 
 	return body, err

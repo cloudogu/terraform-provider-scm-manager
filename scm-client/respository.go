@@ -21,9 +21,31 @@ func (r *Repository) GetID() string {
 	return fmt.Sprintf("%s/%s", r.NameSpace, r.Name)
 }
 
-func (c *Client) GetRepository(name string) (Repository, error) {
+func (c *Client) CreateRepository(repo Repository) error {
 
-	req, err := http.NewRequest("GET", c.config.URL+"/scm/api/v2/repositories/"+name, nil)
+	b, err := json.Marshal(&repo)
+	if err != nil {
+		return errors.Wrap(err, "failed to marshal repository")
+	}
+
+	buffer := bytes.NewBuffer(b)
+	req, err := http.NewRequest("POST", c.config.URL+"/api/v2/repositories", buffer)
+	if err != nil {
+		return errors.Wrap(err, "failed to create new request")
+	}
+
+	req.Header.Set("Content-Type", "application/vnd.scmm-repository+json;v=2")
+
+	_, err = c.doRequest(req)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (c *Client) GetRepository(name string) (Repository, error) {
+	req, err := http.NewRequest("GET", c.config.URL+"/api/v2/repositories/"+name, nil)
 	if err != nil {
 		return Repository{}, errors.Wrap(err, "failed to create new request")
 	}
@@ -42,20 +64,33 @@ func (c *Client) GetRepository(name string) (Repository, error) {
 	return *repo, nil
 }
 
-func (c *Client) CreateRepository(repo Repository) error {
-
+func (c *Client) UpdateRepository(name string, repo Repository) error {
 	b, err := json.Marshal(&repo)
 	if err != nil {
 		return errors.Wrap(err, "failed to marshal repository")
 	}
 
 	buffer := bytes.NewBuffer(b)
-	req, err := http.NewRequest("POST", c.config.URL+"/scm/api/v2/repositories", buffer)
+	req, err := http.NewRequest("PUT", c.config.URL+"/api/v2/repositories"+"/"+name, buffer)
 	if err != nil {
 		return errors.Wrap(err, "failed to create new request")
 	}
 
 	req.Header.Set("Content-Type", "application/vnd.scmm-repository+json;v=2")
+
+	_, err = c.doRequest(req)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (c *Client) DeleteRepository(name string) error {
+	req, err := http.NewRequest("DELETE", c.config.URL+"/api/v2/repositories/"+name, nil)
+	if err != nil {
+		return errors.Wrap(err, "failed to create new request")
+	}
 
 	_, err = c.doRequest(req)
 	if err != nil {
