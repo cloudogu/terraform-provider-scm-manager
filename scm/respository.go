@@ -15,6 +15,7 @@ type Repository struct {
 	Name         string `json:"name"`
 	Type         string `json:"type"`
 	Description  string `json:"description"`
+	Contact      string `json:"contact"`
 	CreationDate string `json:"creationDate"`
 	ImportUrl    string `json:"importUrl"`
 	LastModified string `json:"lastModified"`

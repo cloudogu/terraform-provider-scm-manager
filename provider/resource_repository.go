@@ -41,6 +41,10 @@ func resourceRepository() *schema.Resource {
 				Optional: true,
 				Computed: true,
 			},
+			"contact": {
+				Type:     schema.TypeString,
+				Optional: true,
+			},
 			"description": {
 				Type:     schema.TypeString,
 				Optional: true,
@@ -141,6 +145,7 @@ func repositorySetToState(repo scm.Repository, d *schema.ResourceData) {
 	d.Set("type", repo.Type)
 	d.Set("description", repo.Description)
 	d.Set("last_modified", repo.LastModified)
+	d.Set("contact", repo.Contact)
 }
 
 func repositoryFromState(d *schema.ResourceData) scm.Repository {
@@ -150,6 +155,7 @@ func repositoryFromState(d *schema.ResourceData) scm.Repository {
 	repo.Name = d.Get("name").(string)
 	repo.Type = d.Get("type").(string)
 	repo.Description = d.Get("description").(string)
+	repo.Contact = d.Get("contact").(string)
 	repo.ImportUrl = d.Get("import_url").(string)
 	repo.LastModified = d.Get("last_modified").(string)
 
