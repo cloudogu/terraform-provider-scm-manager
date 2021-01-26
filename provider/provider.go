@@ -20,10 +20,10 @@ type Client interface {
 func Provider() *schema.Provider {
 	return &schema.Provider{
 		Schema: map[string]*schema.Schema{
-			"host": {
+			"url": {
 				Type:        schema.TypeString,
 				Optional:    true,
-				DefaultFunc: schema.EnvDefaultFunc("SCM_HOST", "http://localhost:8080/scm"),
+				DefaultFunc: schema.EnvDefaultFunc("SCM_URL", "http://localhost:8080/scm"),
 			},
 			"username": {
 				Type:        schema.TypeString,
@@ -36,6 +36,11 @@ func Provider() *schema.Provider {
 				Sensitive:   true,
 				DefaultFunc: schema.EnvDefaultFunc("SCM_PASSWORD", "scmadmin"),
 			},
+			"skip_cert_verify": {
+				Type:        schema.TypeBool,
+				Optional:    true,
+				DefaultFunc: schema.EnvDefaultFunc("SCM_SKIP_CERT_VERIFY", false),
+			},
 		},
 		ResourcesMap: map[string]*schema.Resource{
 			"scm_repository": resourceRepository(),
@@ -47,18 +52,20 @@ func Provider() *schema.Provider {
 func providerConfigure(ctx context.Context, d *schema.ResourceData) (interface{}, diag.Diagnostics) {
 	username := d.Get("username").(string)
 	password := d.Get("password").(string)
+	skipVerify := d.Get("skip_cert_verify").(bool)
 
-	var host string
+	var url string
 
-	hVal, ok := d.GetOk("host")
+	uVal, ok := d.GetOk("url")
 	if ok {
-		host = hVal.(string)
+		url = uVal.(string)
 	}
 
 	client := scm.NewClient(scm.Config{
-		URL:      host,
-		Username: username,
-		Password: password,
+		URL:            url,
+		Username:       username,
+		Password:       password,
+		SkipCertVerify: skipVerify,
 	})
 
 	return client, nil

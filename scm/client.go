@@ -1,6 +1,7 @@
 package scm
 
 import (
+	"crypto/tls"
 	"fmt"
 	"io/ioutil"
 	"net/http"
@@ -13,9 +14,10 @@ type Client struct {
 }
 
 type Config struct {
-	URL      string
-	Username string
-	Password string
+	URL            string
+	Username       string
+	Password       string
+	SkipCertVerify bool
 }
 
 func NewClient(config Config) *Client {
@@ -23,8 +25,13 @@ func NewClient(config Config) *Client {
 }
 
 func (c *Client) doRequest(req *http.Request) ([]byte, error) {
+	tr := &http.Transport{
+		TLSClientConfig: &tls.Config{InsecureSkipVerify: c.config.SkipCertVerify},
+	}
+	httpClient := &http.Client{Transport: tr}
+
 	req.SetBasicAuth(c.config.Username, c.config.Password)
-	resp, err := http.DefaultClient.Do(req)
+	resp, err := httpClient.Do(req)
 	if err != nil {
 		return nil, errors.Wrapf(err, "failed to do request")
 	}
