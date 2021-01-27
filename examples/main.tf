@@ -6,20 +6,20 @@ terraform {
   }
 }
 
-/*
 provider "scm" {
  url = "http://localhost:8080/scm"
  username = "scmadmin"
  password = "scmadmin"
 }
-*/
 
+/* Using a local CES
 provider "scm" {
   url = "https://192.168.56.2/scm"
   username = "admin"
   password = "admin123"
   skip_cert_verify = true
 }
+*/
 
 resource "scm_repository" "testrepo" {
   namespace = "scmadmin"
