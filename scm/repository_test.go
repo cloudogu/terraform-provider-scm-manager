@@ -1,3 +1,5 @@
+// +build integration
+
 package scm
 
 import (
@@ -20,19 +22,34 @@ var testRepo = Repository{
 	Name:        "testrepo",
 	Type:        "git",
 	Description: "desc",
+	Contact:     "test@test.test",
 	ImportUrl:   "https://github.com/cloudogu/spring-petclinic",
 }
 
 func TestClient_CreateRepository(t *testing.T) {
 	c := NewClient(testConfig)
+	defer c.DeleteRepository(context.Background(), testRepo.GetID())
 
 	err := c.CreateRepository(context.Background(), testRepo)
 
 	require.NoError(t, err)
 }
 
+func TestClient_DeleteRepository(t *testing.T) {
+	c := NewClient(testConfig)
+	err := c.CreateRepository(context.Background(), testRepo)
+
+	err = c.DeleteRepository(context.Background(), testRepo.GetID())
+	require.NoError(t, err)
+
+	_, err = c.GetRepository(context.Background(), testRepo.GetID())
+	require.Error(t, err)
+}
+
 func TestClient_GetRepository(t *testing.T) {
 	c := NewClient(testConfig)
+	defer c.DeleteRepository(context.Background(), testRepo.GetID())
+	err := c.CreateRepository(context.Background(), testRepo)
 
 	r, err := c.GetRepository(context.Background(), testRepo.GetID())
 	require.NoError(t, err)
@@ -45,6 +62,9 @@ func TestClient_GetRepository(t *testing.T) {
 
 func TestClient_UpdateRepository(t *testing.T) {
 	c := NewClient(testConfig)
+	defer c.DeleteRepository(context.Background(), testRepo.GetID())
+	err := c.CreateRepository(context.Background(), testRepo)
+
 	oldRepo, err := c.GetRepository(context.Background(), testRepo.GetID())
 	require.NoError(t, err)
 	updatedRepo := oldRepo
@@ -58,18 +78,9 @@ func TestClient_UpdateRepository(t *testing.T) {
 	require.Equal(t, updatedRepo.Description, newRepo.Description)
 }
 
-func TestClient_DeleteRepository(t *testing.T) {
-	c := NewClient(testConfig)
-
-	err := c.DeleteRepository(context.Background(), testRepo.GetID())
-	require.NoError(t, err)
-
-	_, err = c.GetRepository(context.Background(), testRepo.GetID())
-	require.Error(t, err)
-}
-
 func TestClient_ImportRepository(t *testing.T) {
 	c := NewClient(testConfig)
+	defer c.DeleteRepository(context.Background(), testRepo.GetID())
 
 	err := c.ImportRepository(context.Background(), testRepo)
 
