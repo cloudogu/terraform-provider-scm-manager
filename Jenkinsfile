@@ -8,22 +8,28 @@ node('docker') {
         checkout scm
     }
 
-    stage('Build') {
-        make 'clean compile checksum'
-        archiveArtifacts 'target/*'
-    }
+    docker.image('golang:1.14.13').inside("-e GOCACHE=/tmp") {
 
-    stage('Unit Test') {
-        make 'unit-test'
-        junit allowEmptyResults: true, testResults: 'target/unit-tests/*-tests.xml'
+        stage('Build') {
+            make 'clean compile checksum'
+            archiveArtifacts 'target/*'
+        }
+
+        stage('Unit Test') {
+            make 'unit-test'
+            junit allowEmptyResults: true, testResults: 'target/unit-tests/*-tests.xml'
+        }
+
+        stage('Static Analysis') {
+            make 'static-analysis'
+        }
     }
 
     stage('SonarQube') {
-        make 'static-analysis'
         def scannerHome = tool name: 'sonar-scanner', type: 'hudson.plugins.sonar.SonarRunnerInstallation'
         withSonarQubeEnv {
             if (branch == "main") {
-                echo "This branch has been detected as the master branch."
+                echo "This branch has been detected as the main branch."
                 sh "${scannerHome}/bin/sonar-scanner"
             } else if (branch == "develop") {
                 echo "This branch has been detected as the develop branch."
