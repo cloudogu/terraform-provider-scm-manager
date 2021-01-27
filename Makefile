@@ -27,3 +27,10 @@ install-local: compile
 .PHONY: package
 package: CHANGELOG.md LICENSE README.md $(BINARY)
 	tar czf $(BINARY).tar.gz CHANGELOG.md LICENSE README.md $(BINARY)
+
+PRE_INTEGRATIONTESTS=start-local-docker-compose wait-for-scm
+
+.PHONY: wait-for-scm
+wait-for-scm:
+	@echo wait-for-scm by sleeping 10 seconds
+	@sleep 10

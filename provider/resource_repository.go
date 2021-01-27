@@ -66,8 +66,6 @@ func resourceRepository() *schema.Resource {
 func resourceRepositoryCreate(ctx context.Context, d *schema.ResourceData, i interface{}) diag.Diagnostics {
 	client := i.(Client)
 
-	var diags diag.Diagnostics
-
 	repo := repositoryFromState(d)
 
 	if repo.ImportUrl != "" {
@@ -83,15 +81,11 @@ func resourceRepositoryCreate(ctx context.Context, d *schema.ResourceData, i int
 	}
 
 	d.SetId(repo.GetID())
-	resourceRepositoryRead(ctx, d, i)
-
-	return diags
+	return resourceRepositoryRead(ctx, d, i)
 }
 
 func resourceRepositoryRead(ctx context.Context, d *schema.ResourceData, i interface{}) diag.Diagnostics {
 	client := i.(Client)
-
-	var diags diag.Diagnostics
 
 	repoID := d.Id()
 
@@ -100,15 +94,11 @@ func resourceRepositoryRead(ctx context.Context, d *schema.ResourceData, i inter
 		return diag.FromErr(err)
 	}
 
-	repositorySetToState(repo, d)
-
-	return diags
+	return repositorySetToState(repo, d)
 }
 
 func resourceRepositoryUpdate(ctx context.Context, d *schema.ResourceData, i interface{}) diag.Diagnostics {
 	client := i.(Client)
-
-	var diags diag.Diagnostics
 
 	repoID := d.Id()
 	repo := repositoryFromState(d)
@@ -119,9 +109,7 @@ func resourceRepositoryUpdate(ctx context.Context, d *schema.ResourceData, i int
 	}
 
 	d.SetId(repo.GetID())
-	repositorySetToState(repo, d)
-
-	return diags
+	return resourceRepositoryRead(ctx, d, i)
 }
 
 func resourceRepositoryDelete(ctx context.Context, d *schema.ResourceData, i interface{}) diag.Diagnostics {
@@ -139,13 +127,29 @@ func resourceRepositoryDelete(ctx context.Context, d *schema.ResourceData, i int
 	return diags
 }
 
-func repositorySetToState(repo scm.Repository, d *schema.ResourceData) {
-	d.Set("namespace", repo.NameSpace)
-	d.Set("name", repo.Name)
-	d.Set("type", repo.Type)
-	d.Set("description", repo.Description)
-	d.Set("last_modified", repo.LastModified)
-	d.Set("contact", repo.Contact)
+func repositorySetToState(repo scm.Repository, d *schema.ResourceData) diag.Diagnostics {
+	if err := d.Set("namespace", repo.NameSpace); err != nil {
+		return diag.FromErr(err)
+	}
+	if err := d.Set("name", repo.Name); err != nil {
+		return diag.FromErr(err)
+	}
+	if err := d.Set("type", repo.Type); err != nil {
+		return diag.FromErr(err)
+	}
+	if err := d.Set("description", repo.Description); err != nil {
+		return diag.FromErr(err)
+	}
+	if err := d.Set("last_modified", repo.LastModified); err != nil {
+		return diag.FromErr(err)
+	}
+	if err := d.Set("creation_date", repo.CreationDate); err != nil {
+		return diag.FromErr(err)
+	}
+	if err := d.Set("contact", repo.Contact); err != nil {
+		return diag.FromErr(err)
+	}
+	return nil
 }
 
 func repositoryFromState(d *schema.ResourceData) scm.Repository {
@@ -158,6 +162,7 @@ func repositoryFromState(d *schema.ResourceData) scm.Repository {
 	repo.Contact = d.Get("contact").(string)
 	repo.ImportUrl = d.Get("import_url").(string)
 	repo.LastModified = d.Get("last_modified").(string)
+	repo.CreationDate = d.Get("creation_date").(string)
 
 	return repo
 }
