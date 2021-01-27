@@ -22,3 +22,7 @@ include build/make/self-update.mk
 install-local: compile
 	mkdir -p ~/.terraform.d/plugins/${HOSTNAME}/${NAMESPACE}/${NAME}/${VERSION}/${OS_ARCH}
 	cp ${BINARY} ~/.terraform.d/plugins/${HOSTNAME}/${NAMESPACE}/${NAME}/${VERSION}/${OS_ARCH}
+
+.PHONY: package
+package: CHANGELOG.md LICENSE README.md $(BINARY)
+	tar czf $(BINARY).tar.gz CHANGELOG.md LICENSE README.md $(BINARY)

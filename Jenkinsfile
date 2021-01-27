@@ -8,10 +8,9 @@ node('docker') {
         checkout scm
     }
 
-    docker.image('golang:1.14.13').inside("-e GOCACHE=/tmp") {
-
+    docker.image('golang:1.14.13').inside("-e HOME=/tmp") {
         stage('Build') {
-            make 'clean compile checksum'
+            make 'clean package checksum'
             archiveArtifacts 'target/*'
         }
 
@@ -40,6 +39,12 @@ node('docker') {
             } else if (branch.startsWith("feature/")) {
                 echo "This branch has been detected as a feature branch."
                 sh "${scannerHome}/bin/sonar-scanner -Dsonar.branch.name=${env.BRANCH_NAME} -Dsonar.branch.target=develop"
+            }
+        }
+        timeout(time: 2, unit: 'MINUTES') { // Needed when there is no webhook for example
+            def qGate = waitForQualityGate()
+            if (qGate.status != 'OK') {
+                unstable("Pipeline unstable due to SonarQube quality gate failure")
             }
         }
     }
