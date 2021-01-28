@@ -1,4 +1,4 @@
-package util
+package scm
 
 import (
 	"github.com/pkg/errors"

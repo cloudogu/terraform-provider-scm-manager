@@ -5,7 +5,6 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
-	"github.com/cloudogu/terraform-provider-scm/util"
 	"net/http"
 
 	"github.com/pkg/errors"
@@ -33,7 +32,7 @@ func (r *Repository) GetID() string {
 }
 
 func (c *Client) CreateRepository(ctx context.Context, repo Repository) error {
-	requestURL, err := util.UrlJoin(c.config.URL, apiRepositoriesURL)
+	requestURL, err := UrlJoin(c.config.URL, apiRepositoriesURL)
 	if err != nil {
 		return errors.Wrap(err, failedToCreateRequestUrlError)
 	}
@@ -41,7 +40,7 @@ func (c *Client) CreateRepository(ctx context.Context, repo Repository) error {
 }
 
 func (c *Client) GetRepository(ctx context.Context, name string) (Repository, error) {
-	requestURL, err := util.UrlJoin(c.config.URL, apiRepositoriesURL, name)
+	requestURL, err := UrlJoin(c.config.URL, apiRepositoriesURL, name)
 	if err != nil {
 		return Repository{}, errors.Wrap(err, failedToCreateRequestUrlError)
 	}
@@ -65,7 +64,7 @@ func (c *Client) GetRepository(ctx context.Context, name string) (Repository, er
 }
 
 func (c *Client) UpdateRepository(ctx context.Context, name string, repo Repository) error {
-	requestURL, err := util.UrlJoin(c.config.URL, apiRepositoriesURL, name)
+	requestURL, err := UrlJoin(c.config.URL, apiRepositoriesURL, name)
 	if err != nil {
 		return errors.Wrap(err, failedToCreateRequestUrlError)
 	}
@@ -73,7 +72,7 @@ func (c *Client) UpdateRepository(ctx context.Context, name string, repo Reposit
 }
 
 func (c *Client) DeleteRepository(ctx context.Context, name string) error {
-	requestURL, err := util.UrlJoin(c.config.URL, apiRepositoriesURL, name)
+	requestURL, err := UrlJoin(c.config.URL, apiRepositoriesURL, name)
 	if err != nil {
 		return errors.Wrap(err, failedToCreateRequestUrlError)
 	}
@@ -91,7 +90,7 @@ func (c *Client) DeleteRepository(ctx context.Context, name string) error {
 }
 
 func (c *Client) ImportRepository(ctx context.Context, repo Repository) error {
-	requestURL, err := util.UrlJoin(c.config.URL, apiRepositoriesURL, "/import/", repo.Type, "/url")
+	requestURL, err := UrlJoin(c.config.URL, apiRepositoriesURL, "/import/", repo.Type, "/url")
 	if err != nil {
 		return errors.Wrap(err, failedToCreateRequestUrlError)
 	}
