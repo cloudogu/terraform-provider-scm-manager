@@ -26,6 +26,11 @@ make install-local
 
 ### Test sample configuration
 
+To run the example configuration you need:
+
+- the [Terraform 0.14+ CLI](https://learn.hashicorp.com/tutorials/terraform/install-cli) installed locally
+- [Docker](https://www.docker.com/products/docker-desktop) and [Docker Compose](https://docs.docker.com/compose/install/)
+
 Start a local instance of the scm-manager:
 
 ```shell
