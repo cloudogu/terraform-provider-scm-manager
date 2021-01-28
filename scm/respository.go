@@ -5,6 +5,7 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"github.com/cloudogu/terraform-provider-scm/util"
 	"net/http"
 
 	"github.com/pkg/errors"
@@ -27,11 +28,15 @@ func (r *Repository) GetID() string {
 
 func (c *Client) CreateRepository(ctx context.Context, repo Repository) error {
 	url := fmt.Sprintf("%s/api/v2/repositories", c.config.URL)
-	return c.setRepository(ctx, repo, "POST", url)
+	return c.setRepository(ctx, repo, http.MethodPost, url)
 }
 
 func (c *Client) GetRepository(ctx context.Context, name string) (Repository, error) {
-	req, err := http.NewRequestWithContext(ctx, "GET", c.config.URL+"/api/v2/repositories/"+name, nil)
+	requestURL, err := util.UrlJoin(c.config.URL, "/api/v2/repositories/", name)
+	if err != nil {
+		return Repository{}, errors.Wrap(err, "failed to create request url")
+	}
+	req, err := http.NewRequestWithContext(ctx, http.MethodGet, requestURL, nil)
 	if err != nil {
 		return Repository{}, errors.Wrap(err, "failed to create new request")
 	}
@@ -51,12 +56,19 @@ func (c *Client) GetRepository(ctx context.Context, name string) (Repository, er
 }
 
 func (c *Client) UpdateRepository(ctx context.Context, name string, repo Repository) error {
-	url := fmt.Sprintf("%s/api/v2/repositories/%s", c.config.URL, name)
-	return c.setRepository(ctx, repo, "PUT", url)
+	requestURL, err := util.UrlJoin(c.config.URL, "/api/v2/repositories/", name)
+	if err != nil {
+		return errors.Wrap(err, "failed to create request url")
+	}
+	return c.setRepository(ctx, repo, http.MethodPut, requestURL)
 }
 
 func (c *Client) DeleteRepository(ctx context.Context, name string) error {
-	req, err := http.NewRequestWithContext(ctx, "DELETE", c.config.URL+"/api/v2/repositories/"+name, nil)
+	requestURL, err := util.UrlJoin(c.config.URL, "/api/v2/repositories/", name)
+	if err != nil {
+		return errors.Wrap(err, "failed to create request url")
+	}
+	req, err := http.NewRequestWithContext(ctx, http.MethodDelete, requestURL, nil)
 	if err != nil {
 		return errors.Wrap(err, "failed to create new request")
 	}
@@ -70,8 +82,11 @@ func (c *Client) DeleteRepository(ctx context.Context, name string) error {
 }
 
 func (c *Client) ImportRepository(ctx context.Context, repo Repository) error {
-	url := fmt.Sprintf("%s/api/v2/repositories/import/%s/url", c.config.URL, repo.Type)
-	return c.setRepository(ctx, repo, "POST", url)
+	requestURL, err := util.UrlJoin(c.config.URL, "/api/v2/repositories/import/", repo.Type, "/url")
+	if err != nil {
+		return errors.Wrap(err, "failed to create request url")
+	}
+	return c.setRepository(ctx, repo, http.MethodPost, requestURL)
 }
 
 func (c *Client) setRepository(ctx context.Context, repo Repository, method string, url string) error {
