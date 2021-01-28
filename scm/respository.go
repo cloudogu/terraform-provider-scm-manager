@@ -11,6 +11,12 @@ import (
 	"github.com/pkg/errors"
 )
 
+const (
+	failedToCreateRequestError    = "failed to create new request"
+	failedToCreateRequestUrlError = "failed to create request url"
+	apiRepositoriesURL            = "/api/v2/repositories/"
+)
+
 type Repository struct {
 	NameSpace    string `json:"namespace"`
 	Name         string `json:"name"`
@@ -27,18 +33,21 @@ func (r *Repository) GetID() string {
 }
 
 func (c *Client) CreateRepository(ctx context.Context, repo Repository) error {
-	url := fmt.Sprintf("%s/api/v2/repositories", c.config.URL)
-	return c.setRepository(ctx, repo, http.MethodPost, url)
+	requestURL, err := util.UrlJoin(c.config.URL, apiRepositoriesURL)
+	if err != nil {
+		return errors.Wrap(err, failedToCreateRequestUrlError)
+	}
+	return c.setRepository(ctx, repo, http.MethodPost, requestURL)
 }
 
 func (c *Client) GetRepository(ctx context.Context, name string) (Repository, error) {
-	requestURL, err := util.UrlJoin(c.config.URL, "/api/v2/repositories/", name)
+	requestURL, err := util.UrlJoin(c.config.URL, apiRepositoriesURL, name)
 	if err != nil {
-		return Repository{}, errors.Wrap(err, "failed to create request url")
+		return Repository{}, errors.Wrap(err, failedToCreateRequestUrlError)
 	}
 	req, err := http.NewRequestWithContext(ctx, http.MethodGet, requestURL, nil)
 	if err != nil {
-		return Repository{}, errors.Wrap(err, "failed to create new request")
+		return Repository{}, errors.Wrap(err, failedToCreateRequestError)
 	}
 
 	body, err := c.doRequest(req)
@@ -56,21 +65,21 @@ func (c *Client) GetRepository(ctx context.Context, name string) (Repository, er
 }
 
 func (c *Client) UpdateRepository(ctx context.Context, name string, repo Repository) error {
-	requestURL, err := util.UrlJoin(c.config.URL, "/api/v2/repositories/", name)
+	requestURL, err := util.UrlJoin(c.config.URL, apiRepositoriesURL, name)
 	if err != nil {
-		return errors.Wrap(err, "failed to create request url")
+		return errors.Wrap(err, failedToCreateRequestUrlError)
 	}
 	return c.setRepository(ctx, repo, http.MethodPut, requestURL)
 }
 
 func (c *Client) DeleteRepository(ctx context.Context, name string) error {
-	requestURL, err := util.UrlJoin(c.config.URL, "/api/v2/repositories/", name)
+	requestURL, err := util.UrlJoin(c.config.URL, apiRepositoriesURL, name)
 	if err != nil {
-		return errors.Wrap(err, "failed to create request url")
+		return errors.Wrap(err, failedToCreateRequestUrlError)
 	}
 	req, err := http.NewRequestWithContext(ctx, http.MethodDelete, requestURL, nil)
 	if err != nil {
-		return errors.Wrap(err, "failed to create new request")
+		return errors.Wrap(err, failedToCreateRequestError)
 	}
 
 	_, err = c.doRequest(req)
@@ -82,9 +91,9 @@ func (c *Client) DeleteRepository(ctx context.Context, name string) error {
 }
 
 func (c *Client) ImportRepository(ctx context.Context, repo Repository) error {
-	requestURL, err := util.UrlJoin(c.config.URL, "/api/v2/repositories/import/", repo.Type, "/url")
+	requestURL, err := util.UrlJoin(c.config.URL, apiRepositoriesURL, "/import/", repo.Type, "/url")
 	if err != nil {
-		return errors.Wrap(err, "failed to create request url")
+		return errors.Wrap(err, failedToCreateRequestUrlError)
 	}
 	return c.setRepository(ctx, repo, http.MethodPost, requestURL)
 }
@@ -99,7 +108,7 @@ func (c *Client) setRepository(ctx context.Context, repo Repository, method stri
 
 	req, err := http.NewRequestWithContext(ctx, method, url, buffer)
 	if err != nil {
-		return errors.Wrap(err, "failed to create new request")
+		return errors.Wrap(err, failedToCreateRequestError)
 	}
 
 	req.Header.Set("Content-Type", "application/vnd.scmm-repository+json;v=2")
