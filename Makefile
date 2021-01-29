@@ -6,7 +6,10 @@ HOSTNAME=cloudogu.com
 NAMESPACE=tf
 NAME=scm
 
+TEST?=$$(go list ./... | grep -v 'vendor')
+
 .DEFAULT_GOAL:=compile
+ADDITIONAL_CLEAN=clean-test-cache
 
 include build/make/variables.mk
 include build/make/info.mk
@@ -29,6 +32,24 @@ package: CHANGELOG.md LICENSE README.md $(BINARY)
 	tar czf $(BINARY).tar.gz CHANGELOG.md LICENSE README.md $(BINARY)
 
 PRE_INTEGRATIONTESTS=start-local-docker-compose wait-for-scm
+
+.PHONY: clean-test-cache
+clean-test-cache:
+	@echo clean go testcache
+	@go clean -testcache
+
+.PHONY: testacc
+testacc:
+	@mkdir -p $(TARGET_DIR)/acceptance-tests
+	TF_ACC=1 SCM_USERNAME=scmadmin SCM_PASSWORD=scmadmin \
+	go test $(TEST) -coverprofile=$(TARGET_DIR)/acceptance-tests/coverage.out -timeout 120m
+
+testacc-local: export SCM_URL = http://localhost:8080/scm
+
+.PHONY: testacc-local
+testacc-local: start-local-docker-compose
+	SCM_URL=http://localhost:8080/scm
+	@make testacc
 
 .PHONY: wait-for-scm
 wait-for-scm:
