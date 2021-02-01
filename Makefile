@@ -1,5 +1,5 @@
 OS_ARCH=linux_amd64
-VERSION=0.1
+VERSION=1.0
 ARTIFACT_ID=terraform-provider-scm_${VERSION}_${OS_ARCH}
 
 HOSTNAME=cloudogu.com
