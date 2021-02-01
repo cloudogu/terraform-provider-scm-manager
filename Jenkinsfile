@@ -1,4 +1,6 @@
 #!groovy
+@Library(['github.com/cloudogu/zalenium-build-lib@v2.1.0'])
+import com.cloudogu.ces.zaleniumbuildlib.*
 
 node('docker') {
 
@@ -8,22 +10,35 @@ node('docker') {
         checkout scm
     }
 
-    docker.image('golang:1.14.13').inside("-e HOME=/tmp") {
-        stage('Build') {
-            make 'clean package checksum'
-            archiveArtifacts 'target/*'
-        }
+    def scmImage = docker.image('scmmanager/scm-manager:2.12.0')
+    def scmContainerName = "${JOB_BASE_NAME}-${BUILD_NUMBER}".replaceAll("\\/|%2[fF]", "-")
+    withDockerNetwork { buildnetwork ->
+        scmImage.withRun("--network ${buildnetwork} --name ${scmContainerName}") {
 
-        stage('Unit Test') {
-            make 'unit-test'
-            junit allowEmptyResults: true, testResults: 'target/unit-tests/*-tests.xml'
-        }
+            docker.image('golang:1.14.13').inside("--network ${buildnetwork} -e HOME=/tmp") {
 
-        stage('Static Analysis') {
-            make 'static-analysis'
+                stage('Build') {
+                    make 'clean package checksum'
+                    archiveArtifacts 'target/*'
+                }
+
+                stage('Unit Test') {
+                    make 'unit-test'
+                    junit allowEmptyResults: true, testResults: 'target/unit-tests/*-tests.xml'
+                }
+
+                stage('Static Analysis') {
+                    make 'static-analysis'
+                }
+
+                stage('Acceptance Tests') {
+                    sh "SCM_URL=http://${scmContainerName}:8080/scm make testacc"
+                    archiveArtifacts 'target/acceptance-tests/*.out'
+                }
+
+            }
         }
     }
-
     stage('SonarQube') {
         def scannerHome = tool name: 'sonar-scanner', type: 'hudson.plugins.sonar.SonarRunnerInstallation'
         withSonarQubeEnv {
