@@ -85,6 +85,9 @@ resource "scm_repository" "testrepo" {
   description = "this is a test repository"
   contact = "scmadmin@test.test"
   # can be used to populate the new repository with the content of another repository
-  import_url = "https://github.com/cloudogu/spring-petclinic"  
+  import_url = "https://github.com/cloudogu/spring-petclinic"
+  # can be used for authentication if the import url contains a private repository
+  import_username = "testuser"
+  import_password = "testpw"
 }
 ```
