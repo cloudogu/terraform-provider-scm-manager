@@ -54,6 +54,21 @@ func resourceRepository() *schema.Resource {
 				Optional: true,
 				ForceNew: true,
 			},
+			"import_username": {
+				Type:     schema.TypeString,
+				Optional: true,
+				StateFunc: func(i interface{}) string {
+					return "excluded from state"
+				},
+			},
+			"import_password": {
+				Type:      schema.TypeString,
+				Optional:  true,
+				Sensitive: true,
+				StateFunc: func(i interface{}) string {
+					return "excluded from state"
+				},
+			},
 			"last_modified": {
 				Type:     schema.TypeString,
 				Optional: true,
@@ -161,6 +176,8 @@ func repositoryFromState(d *schema.ResourceData) scm.Repository {
 	repo.Description = d.Get("description").(string)
 	repo.Contact = d.Get("contact").(string)
 	repo.ImportUrl = d.Get("import_url").(string)
+	repo.ImportUsername = d.Get("import_username").(string)
+	repo.ImportPassword = d.Get("import_password").(string)
 	repo.LastModified = d.Get("last_modified").(string)
 	repo.CreationDate = d.Get("creation_date").(string)
 

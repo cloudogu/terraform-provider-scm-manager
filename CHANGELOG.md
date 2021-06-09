@@ -7,6 +7,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+* option to import a private repository  
+
 ## [v1.0.0] - 2021-02-01
 ### Added
 * initial provider [details](https://github.com/cloudogu/terraform-provider-scm/tree/95c10656978e96f7d0613933c0e35b7fb5be606a#provider-configuration)

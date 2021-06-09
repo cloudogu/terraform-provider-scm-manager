@@ -17,14 +17,16 @@ const (
 )
 
 type Repository struct {
-	NameSpace    string `json:"namespace"`
-	Name         string `json:"name"`
-	Type         string `json:"type"`
-	Description  string `json:"description"`
-	Contact      string `json:"contact"`
-	CreationDate string `json:"creationDate"`
-	ImportUrl    string `json:"importUrl"`
-	LastModified string `json:"lastModified"`
+	NameSpace      string `json:"namespace"`
+	Name           string `json:"name"`
+	Type           string `json:"type"`
+	Description    string `json:"description"`
+	Contact        string `json:"contact"`
+	CreationDate   string `json:"creationDate"`
+	ImportUrl      string `json:"importUrl"`
+	ImportUsername string `json:"username"`
+	ImportPassword string `json:"password"`
+	LastModified   string `json:"lastModified"`
 }
 
 func (r *Repository) GetID() string {
