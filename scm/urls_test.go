@@ -1,9 +1,10 @@
 package scm
 
 import (
+	"testing"
+
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
-	"testing"
 )
 
 func TestUrlJoin(t *testing.T) {
@@ -36,7 +37,7 @@ func TestUrlJoin(t *testing.T) {
 		require.Equal(t, expectedResult, got)
 	})
 	t.Run("returns error when passing the evil control character 0x7f as first parameter", func(t *testing.T) {
-		got, err := UrlJoin(string(0x7f), "bernd", "kram")
+		got, err := UrlJoin(string(rune(0x7f)), "bernd", "kram")
 
 		expectedResult := ""
 		assert.Error(t, err)

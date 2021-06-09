@@ -63,9 +63,16 @@ func TestAccRepositoryImport(t *testing.T) {
 					resource.TestCheckResourceAttr("scm_repository.testrepo", "last_modified", "")),
 			},
 			{
-				Config: basicRepositoryWithDescription("this is new description", "import_url = \"https://github.com/cloudogu/spring-petclinic\""),
+				Config: basicRepositoryWithDescription("this is new description",
+					`import_url = "https://github.com/cloudogu/spring-petclinic"
+							import_username = "testuser"
+							import_password = "testpw"`),
 				// For now there is no real check whether the import was successful
-				Check: resource.TestCheckResourceAttr("scm_repository.testrepo", "description", "this is new description"),
+				Check: resource.ComposeAggregateTestCheckFunc(
+					resource.TestCheckResourceAttr("scm_repository.testrepo", "description", "this is new description"),
+					resource.TestCheckResourceAttr("scm_repository.testrepo", "import_url", "https://github.com/cloudogu/spring-petclinic"),
+					resource.TestCheckResourceAttr("scm_repository.testrepo", "import_username", "excluded from state"),
+					resource.TestCheckResourceAttr("scm_repository.testrepo", "import_password", "excluded from state")),
 			},
 		},
 	})
