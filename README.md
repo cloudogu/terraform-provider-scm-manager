@@ -91,3 +91,12 @@ resource "scm_repository" "testrepo" {
   import_password = "testpw"
 }
 ```
+
+
+## Update Documentation for the Terraform Registry
+
+Run `tfplugindocs` in the root directory of the provider. 
+
+```bash
+tfplugindocs
+```
