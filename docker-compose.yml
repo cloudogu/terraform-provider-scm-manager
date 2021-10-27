@@ -1,7 +1,7 @@
 version: '2.0'
 services:
   scm:
-    image: scmmanager/scm-manager:2.12.0
+    image: scmmanager/scm-manager:2.25.0
     ports:
       - "8080:8080"
       # if the ssh plugin is used

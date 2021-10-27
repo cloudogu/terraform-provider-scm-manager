@@ -39,6 +39,7 @@ node('docker') {
             }
         }
     }
+
     stage('SonarQube') {
         def scannerHome = tool name: 'sonar-scanner', type: 'hudson.plugins.sonar.SonarRunnerInstallation'
         withSonarQubeEnv {
@@ -61,6 +62,18 @@ node('docker') {
             if (qGate.status != 'OK') {
                 unstable("Pipeline unstable due to SonarQube quality gate failure")
             }
+        }
+    }
+
+    if (gitflow.isReleaseBranch()) {
+        String releaseVersion = git.getSimpleBranchName();
+
+        stage('Finish Release') {
+            gitflow.finishRelease(releaseVersion)
+        }
+
+        stage('Add Github-Release') {
+            github.createReleaseWithChangelog(releaseVersion, changelog)
         }
     }
 }

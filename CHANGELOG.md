@@ -9,6 +9,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [v1.1.1] - 2021-10-22
 ### Added
+* automatic go tool release #1
+
+### Changed
+* proper renaming from `terraform-provider-scm` to `terraform-provider-scm-manager` #1
+
+### Added
 * option to import a private repository  
 
 ## [v1.0.0] - 2021-02-01
