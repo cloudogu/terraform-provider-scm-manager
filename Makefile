@@ -1,6 +1,6 @@
 OS_ARCH=linux_amd64
 VERSION=1.1.1
-ARTIFACT_ID=terraform-provider-scm_${VERSION}_${OS_ARCH}
+ARTIFACT_ID=terraform-provider-scm-manager${VERSION}_${OS_ARCH}
 
 HOSTNAME=cloudogu.com
 NAMESPACE=tf

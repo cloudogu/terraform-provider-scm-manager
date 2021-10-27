@@ -1,4 +1,4 @@
-module github.com/cloudogu/terraform-provider-scm
+module github.com/cloudogu/terraform-provider-scm-manager
 
 go 1.14
 
