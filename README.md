@@ -34,7 +34,7 @@ To run the example configuration you need:
 Start a local instance of the scm-manager:
 
 ```shell
-docker-compose up -d
+JAVA_OPTS="-Dscm.initialPassword=scmadmin -Dscm.initialUser=scmadmin" docker-compose up -d
 ```
 
 After installing the provider, navigate to the `examples` directory.

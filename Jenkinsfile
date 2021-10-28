@@ -1,19 +1,28 @@
 #!groovy
-@Library(['github.com/cloudogu/zalenium-build-lib@v2.1.0'])
+@Library(['github.com/cloudogu/dogu-build-lib@v1.4.1', 'github.com/cloudogu/ces-build-lib@1.48.0', 'github.com/cloudogu/zalenium-build-lib@v2.1.0'])
+import com.cloudogu.ces.cesbuildlib.*
+import com.cloudogu.ces.dogubuildlib.*
 import com.cloudogu.ces.zaleniumbuildlib.*
 
-node('docker') {
+Git git = new Git(this, "cesmarvin")
+git.committerName = 'cesmarvin'
+git.committerEmail = 'cesmarvin@cloudogu.com'
+GitFlow gitflow = new GitFlow(this, git)
+GitHub github = new GitHub(this, git)
+Changelog changelog = new Changelog(this)
+String productionReleaseBranch = "main"
 
+node('docker') {
     branch = "${env.BRANCH_NAME}"
 
     stage('Checkout') {
         checkout scm
     }
 
-    def scmImage = docker.image('scmmanager/scm-manager:2.12.0')
+    def scmImage = docker.image('scmmanager/scm-manager:2.25.0')
     def scmContainerName = "${JOB_BASE_NAME}-${BUILD_NUMBER}".replaceAll("\\/|%2[fF]", "-")
     withDockerNetwork { buildnetwork ->
-        scmImage.withRun("--network ${buildnetwork} --name ${scmContainerName}") {
+        scmImage.withRun("--network ${buildnetwork} --name ${scmContainerName} --env JAVA_OPTS=\"-Dscm.initialPassword=scmadmin -Dscm.initialUser=scmadmin\"") {
 
             docker.image('golang:1.14.13').inside("--network ${buildnetwork} -e HOME=/tmp") {
 
@@ -69,11 +78,11 @@ node('docker') {
         String releaseVersion = git.getSimpleBranchName();
 
         stage('Finish Release') {
-            gitflow.finishRelease(releaseVersion)
+            gitflow.finishRelease(releaseVersion, productionReleaseBranch)
         }
 
         stage('Add Github-Release') {
-            github.createReleaseWithChangelog(releaseVersion, changelog)
+            github.createReleaseWithChangelog(releaseVersion, changelog, productionReleaseBranch)
         }
     }
 }

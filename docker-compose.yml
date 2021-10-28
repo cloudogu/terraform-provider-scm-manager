@@ -1,12 +1,12 @@
-version: '2.0'
+version: "3.0"
 services:
   scm:
     image: scmmanager/scm-manager:2.25.0
     ports:
       - "8080:8080"
-      # if the ssh plugin is used
-      - "2222:2222"
     volumes:
-      - scmhome:/var/lib/scm
+      - scm_data:/var/lib/scm
+    environment:
+      JAVA_OPTS: ${JAVA_OPTS}
 volumes:
-  scmhome: {}
+  scm_data: {}
