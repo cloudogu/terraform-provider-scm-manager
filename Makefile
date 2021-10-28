@@ -1,7 +1,8 @@
 OS_ARCH=linux_amd64
-VERSION=1.1.1
-ARTIFACT_ID=terraform-provider-scm_${VERSION}_${OS_ARCH}
+VERSION=2.0.0
+ARTIFACT_ID=terraform-provider-scm-manager${VERSION}_${OS_ARCH}
 
+MAKEFILES_VERSION=4.6.0
 HOSTNAME=cloudogu.com
 NAMESPACE=tf
 NAME=scm
@@ -22,6 +23,7 @@ include build/make/static-analysis.mk
 include build/make/clean.mk
 include build/make/digital-signature.mk
 include build/make/self-update.mk
+include build/make/release.mk
 
 install-local: compile
 	mkdir -p ~/.terraform.d/plugins/${HOSTNAME}/${NAMESPACE}/${NAME}/${VERSION}/${OS_ARCH}
