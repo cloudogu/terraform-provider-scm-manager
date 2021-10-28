@@ -2,8 +2,7 @@ package provider
 
 import (
 	"context"
-
-	"github.com/cloudogu/terraform-provider-scm/scm"
+	"github.com/cloudogu/terraform-provider-scm-manager/scm"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"

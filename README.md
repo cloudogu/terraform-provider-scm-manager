@@ -34,7 +34,7 @@ To run the example configuration you need:
 Start a local instance of the scm-manager:
 
 ```shell
-docker-compose up -d
+JAVA_OPTS="-Dscm.initialPassword=scmadmin -Dscm.initialUser=scmadmin" docker-compose up -d
 ```
 
 After installing the provider, navigate to the `examples` directory.
@@ -57,7 +57,7 @@ To use the scm provider terraform needs know its location which can be defined i
 terraform {
   required_providers {
     scm = {
-      source = "cloudogu.com/tf/scm"
+      source = "cloudogu/scm-manager"
     }
   }
 }
@@ -102,8 +102,6 @@ This should be updated before each release if basic things have changed at the p
 ```bash
 tfplugindocs
 ```
-
-Translated with www.DeepL.com/Translator (free version)
 
 ### What is the Cloudogu EcoSystem?
 

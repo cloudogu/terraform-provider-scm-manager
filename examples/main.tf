@@ -1,7 +1,7 @@
 terraform {
   required_providers {
     scm = {
-      source = "cloudogu.com/tf/scm"
+      source = "cloudogu/scm-manager"
     }
   }
 }
