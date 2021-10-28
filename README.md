@@ -57,7 +57,7 @@ To use the scm provider terraform needs know its location which can be defined i
 terraform {
   required_providers {
     scm = {
-      source = "cloudogu.com/tf/scm"
+      source = "cloudogu/scm-manager"
     }
   }
 }
