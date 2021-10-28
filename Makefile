@@ -1,5 +1,5 @@
 OS_ARCH=linux_amd64
-VERSION=1.1.1
+VERSION=2.0.0
 ARTIFACT_ID=terraform-provider-scm-manager${VERSION}_${OS_ARCH}
 
 MAKEFILES_VERSION=4.6.0
